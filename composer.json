@@ -1,0 +1,19 @@
+{
+    "name": "user/wjcrypto",
+    "autoload": {
+        "psr-4": {
+            "Src\\": "src/",
+            "App\\": "app/"
+            
+        }
+    },
+    "authors": [
+        {
+            "name": "Carlos Jaime",
+            "email": "jaime_andrek@hotmail.com"
+        }
+    ],
+    "require": {
+        "php-di/php-di": "^6.4"
+    }
+}
