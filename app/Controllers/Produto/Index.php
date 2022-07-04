@@ -2,7 +2,7 @@
 
 namespace App\Controllers\Produto;
 
-use App\Controllers\Produto\Get;
+use App\Controllers\Produto\http\Get;
 
 class Index
 {

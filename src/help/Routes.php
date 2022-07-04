@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
-namespace Src\help;
 
+namespace Src\help;
 
 class Routes
 {
     /**
-     * clean the url
+     * clear the url for render
      *
      * @return array
      */
@@ -53,7 +53,7 @@ class Routes
     }
 
     /**
-     * renders a page
+     * renders the page
      *
      * @return void
      */
@@ -61,9 +61,7 @@ class Routes
     {
         $route = $this->clearUrl();
         $controller = $route['controller'];
-
         $method = $route['method'];
-
         $class = "\\App\\Controllers\\" . $controller;
 
         if (class_exists($class)) {

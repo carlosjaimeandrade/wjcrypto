@@ -4,7 +4,6 @@ namespace Src\help;
 
 class Request
 {
-    
     /**
      * request param value
      *
@@ -23,7 +22,5 @@ class Request
             return null;
         }
     }
-
-
 
 }
