@@ -8,16 +8,16 @@ class Request
      * request param value
      *
      * @param integer $param
-     * @return void
+     * @return string
      */
-    public function get_id(int $param): string 
+    public function getId(int $param): string 
     {
-        $url_id = $_GET['url'];
-        $url_id = explode("/", $url_id);
+        $urlId = $_GET['url'];
+        $urlId = explode("/", $urlId);
         $num = 1 + $param;
-        if (isset($url_id[$num])) {
-            $url_id = $url_id[$num];
-            return $url_id;
+        if (isset($urlId[$num])) {
+            $urlId = $urlId[$num];
+            return $urlId;
         }else{
             return null;
         }
