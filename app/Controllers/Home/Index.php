@@ -3,7 +3,7 @@
 namespace App\Controllers\Home;
 
 use App\Models\Produto;
-
+use Psr\Http\Server\RequestHandlerInterface;
 
 class Index{
 
@@ -12,9 +12,6 @@ class Index{
     }
     
     public function index(){    
-        
-        $dados = $this->produto->findOne(['*'], ['email' => 'joao1@hotmail.com']);
-        var_dump($dados);
         echo "pagina inicial";
     }
 

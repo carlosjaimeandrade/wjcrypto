@@ -79,4 +79,15 @@ class Routes
             echo "pagina não encontrada";
         }
     }
+
+    /**
+     * return page 
+     *
+     * @return string
+     */
+    public function getPage():string{
+        $route = $this->clearUrl();
+        $controller = $route['controller'];
+        return  "\\App\\Controllers\\" . $controller;
+    }
 }

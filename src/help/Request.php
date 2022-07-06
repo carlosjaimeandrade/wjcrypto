@@ -10,7 +10,7 @@ class Request
      * @param integer $param
      * @return string
      */
-    public function getId(int $param): string 
+    public function getId(int $param): ?string 
     {
         $urlId = $_GET['url'];
         $urlId = explode("/", $urlId);
