@@ -63,7 +63,7 @@ class Routes
         $controller = $route['controller'];
         $method = $route['method'];
         $class = "\\App\\Controllers\\" . $controller;
-
+        
         if (class_exists($class)) {
             $containerBuilder = new \DI\ContainerBuilder();
             $containerBuilder->useAutowiring(true);

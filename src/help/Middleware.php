@@ -3,6 +3,7 @@
 namespace Src\help;
 
 use Src\help\Routes;
+use Src\help\Json;
 
 class Middleware{
 
@@ -14,13 +15,19 @@ class Middleware{
     /**
      * @var Routes
      */
-    public $routes;
+    private $routes;
+
+    /**
+     * @var Json
+     */
+    private $json;
 
     /**
      * @param Routes $routes
      */
-    public function __construct(Routes $routes){
+    public function __construct(Routes $routes, Json $json){
         $this->routes = $routes;
+        $this->json = $json;
     }
     
     /**
@@ -32,12 +39,11 @@ class Middleware{
     public function check(){
         foreach($this->pages as $page){
             if($page == $this->routes->getPage()){
-                echo "não autorizado";
+                $this->json->response(['error' => "Access denied."], 401);
                 exit();
             }   
         }
 
         $this->routes->render();
     }
-
 }

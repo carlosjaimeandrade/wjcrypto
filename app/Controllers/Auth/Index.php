@@ -12,10 +12,10 @@ class Index{
 
     public function index(){
         $httpMethod = strtolower($_SERVER['REQUEST_METHOD']);
-    
+
         if($httpMethod == "post"){
             $this->post->create();
         }
+        
     }
-
 }

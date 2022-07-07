@@ -5,12 +5,15 @@ header("Content-type: application/json");
 
 require "../vendor/autoload.php";
 
-use Src\help\Routes;
-use Src\help\Middleware;
+$containerBuilder = new \DI\ContainerBuilder();
+$containerBuilder->useAutowiring(true);
+$container = $containerBuilder->build();
 
-$middleware = new Middleware(new Routes());
+$middleware = $container->get('Src\help\Middleware');
+
 $middleware->pages = [
-    '\App\Controllers\Produto\Index'
+    ''
 ];
+
 $middleware->check();
 

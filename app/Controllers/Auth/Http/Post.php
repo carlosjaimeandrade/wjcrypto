@@ -4,8 +4,15 @@ namespace App\Controllers\Auth\Http;
 
 use Firebase\JWT\JWT;
 use Src\help\Json;
+use App\Models\Users;
 
 class Post{
+
+    /**
+     * @var string
+     */
+    private $token;
+
     /**
      * @var Json
      */
@@ -13,9 +20,11 @@ class Post{
 
     /**
      * @param Json $json
+     * @param Users $users
      */
-    public function __construct(Json $json){
+    public function __construct(Json $json, Users $users){
         $this->json = $json;
+        $this->users = $users;
     }
 
     /**
@@ -24,27 +33,49 @@ class Post{
      * @return json
      */
     public function create(){
-        $token = $this->token();
-        $this->json->response(['token'=> $token], 200);
+
+        if($this->userPermission()){
+            $this->json->response(['token'=> $this->token], 200);
+            exit();
+        }
+
+        $this->json->response(['error' => "Access denied."], 401); 
     }
 
     /**
-     * return token
+     * return status user permission
      *
-     * @return string
+     * @return bolean
      */
-    private function token():string{
+    private function userPermission(){
+        $body = $this->json->request();
+        $password = md5($body['password']);
+        $user = $this->users->findOne(['*'], ["email" => $body['email'],  "password" => $password]);
+
+        if(empty($user)){
+            return false;
+        }
+
+        $this->token($user);
+        return true;
+    }
+
+    /**
+     * define token
+     *
+     * @return void
+     */
+    private function token($user):void{
         $key = 'Aswd212$$@#as@ad2f58456s485a4as984d872';
         $payload = [
-            'iss' => 'http://example.org',
-            'aud' => 'http://example.com',
-            'iat' => 1356999524,
-            'nbf' => 1357000000
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'exp' => time() + 3600
         ];
 
-        $token = JWT::encode($payload, $key, 'HS256');    
-
-        return $token;
+        $token = JWT::encode($payload, $key, 'HS256');
+        $this->token = $token;
     }
 
 }

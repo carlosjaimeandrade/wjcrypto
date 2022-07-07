@@ -15,7 +15,6 @@ class Database
     public static function getConnection()
     {
         try {
-            echo realpath(dirname(__FILE__));
             $envPath = realpath(dirname(__FILE__) . '../../../env.ini');
             $env = parse_ini_file($envPath);
 

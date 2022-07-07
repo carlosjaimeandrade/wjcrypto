@@ -28,9 +28,9 @@ abstract class QueryBuilder{
         if(count($conditions)>0){
             $params = "";
             foreach($conditions as $param => $value){
-                $params .= "{$param}=:{$param} AND";
+                $params .= "{$param}=:{$param} AND ";
             }
-            $params = rtrim($params,"AND");
+            $params = rtrim($params," AND ");
             $stmt = $pdo->prepare("SELECT $col FROM $table WHERE $params");
             $stmt->execute($conditions); 
 
@@ -66,9 +66,9 @@ abstract class QueryBuilder{
         if(count($conditions)>0){
             $params = "";
             foreach($conditions as $param => $value){
-                $params .= "{$param}=:{$param} AND";
+                $params .= "{$param}=:{$param} AND ";
             }
-            $params = rtrim($params,"AND");
+            $params = rtrim($params," AND ");
             $stmt = $pdo->prepare("SELECT $col FROM $table WHERE $params");
             $stmt->execute($conditions); 
 
