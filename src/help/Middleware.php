@@ -4,6 +4,7 @@ namespace Src\help;
 
 use Src\help\Routes;
 use Src\help\Json;
+use Src\help\Request;
 
 class Middleware{
 
@@ -23,11 +24,17 @@ class Middleware{
     private $json;
 
     /**
+     * @var Request
+     */
+    private $request;
+
+    /**
      * @param Routes $routes
      */
-    public function __construct(Routes $routes, Json $json){
+    public function __construct(Routes $routes, Json $json, Request $request){
         $this->routes = $routes;
         $this->json = $json;
+        $this->request = $request;
     }
     
     /**
@@ -39,8 +46,10 @@ class Middleware{
     public function check(){
         foreach($this->pages as $page){
             if($page == $this->routes->getPage()){
-                $this->json->response(['error' => "Access denied."], 401);
-                exit();
+                if(!$this->request->authorization()){
+                    $this->json->response(['error' => "Access denied."], 401);
+                    exit();
+                }
             }   
         }
 

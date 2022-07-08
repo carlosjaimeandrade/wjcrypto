@@ -66,7 +66,7 @@ class Post{
      * @return void
      */
     private function token($user):void{
-        $key = 'Aswd212$$@#as@ad2f58456s485a4as984d872';
+        $key = "Aswd212$$@#as@ad2f58456s485a4as984d872";
         $payload = [
             'id' => $user->id,
             'name' => $user->name,
