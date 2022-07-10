@@ -6,22 +6,12 @@ use Src\help\Database;
 
 abstract class QueryBuilder
 {
-
-    private $query;
-
-    private $conditions;
-
-    /**
-     * @var int
-     */
-    public $lastInsertId;
-
     /**
      * @var string
      */
     public $table;
 
-    public function __construct($atributes = [], $define = false)
+    public function __construct($atributes = [], $query = [], $define = false)
     {
 
         if($define){
@@ -29,11 +19,14 @@ abstract class QueryBuilder
                 foreach ($atributes as $key => $value) {
                     $this->$key = $value;
                 }
+                $this->find = "one";
             } else {
                 $this->datas = $atributes;
+                $this->find = "all";
             }
         }
 
+        $this->query = $query;
     }
 
     /**
@@ -47,6 +40,7 @@ abstract class QueryBuilder
     {
         $col = "";
         $obj = [];
+        $query = [];
         foreach ($attributes as $attribute) {
             $col .= $attribute . " ,";
         }
@@ -67,22 +61,23 @@ abstract class QueryBuilder
                 $obj[] = $row;
             }
 
-            $this->query = "SELECT $col FROM $table WHERE $params";
-            $this->conditions = $conditions;
+            $query['query'] = "SELECT $col FROM $table WHERE $params";
+            $query['conditions'] = $conditions;
 
-            return $this->newObj($obj);
+            return $this->newObj($obj,$query);
         }
 
         $stmt = $pdo->query("SELECT $col FROM $table");
-        $this->query = "SELECT $col FROM $table";
-        $this->conditions = "";
+
+        $query['query'] = "SELECT $col FROM $table";
+        $query['conditions'] = "";
 
         while ($row = $stmt->fetchObject()) {
             $obj[] = $row;
         }
 
 
-        return $this->newObj($obj);
+        return $this->newObj($obj,$query);
     }
 
     /**
@@ -94,6 +89,8 @@ abstract class QueryBuilder
      */
     public function findOne(array $attributes = ['*'], array $conditions = [])
     {
+        $obj = [];
+        $query= [];
         $pdo = Database::getConnection();
         $col = "";
         foreach ($attributes as $attribute) {
@@ -109,15 +106,22 @@ abstract class QueryBuilder
             }
             $params = rtrim($params, " AND ");
             $stmt = $pdo->prepare("SELECT $col FROM $table WHERE $params");
-            $stmt->execute($conditions);
 
-            return $this->newObj($stmt->fetchObject());
+            $query['query'] = "SELECT $col FROM $table WHERE $params";
+            $query['conditions'] = $conditions;
+
+            $stmt->execute($conditions);
+            
+            return $this->newObj($stmt->fetchObject(),$query);
         }
 
-
         $stmt = $pdo->query("SELECT $col FROM $table");
+        
+        $query['query'] = "SELECT $col FROM $table";
+        $query['conditions'] = "";
 
-        return $this->newObj($stmt->fetchObject());
+
+        return $this->newObj($stmt->fetchObject(), $query);
     }
 
     public function create($datas)
@@ -143,31 +147,39 @@ abstract class QueryBuilder
         }
     }
 
-    public function order($order)
+    public function order($order) 
     {
         $obj = [];
-        $query = $this->query . " ORDER BY id $order";
+        $query = $this->query['query'] . " ORDER BY id $order";
         $pdo = Database::getConnection();
         $stmt = $pdo->prepare($query);
-        if ($this->conditions == "") {
+        if ($this->query['conditions'] == "") {
             $stmt->execute();
             while ($row = $stmt->fetchObject()) {
                 $obj[] = $row;
             }
-            return $obj;
+            $queryParams = [];
+            $queryParams['query'] = $query;
+            $queryParams['conditions'] = $this->query['conditions'];
+    
+            return $this->newObj($obj, $queryParams);
             exit();
         }
-        $stmt->execute($this->conditions);
+        $stmt->execute($this->query['conditions']);
         while ($row = $stmt->fetchObject()) {
             $obj[] = $row;
         }
 
-        return $stmt->fetchObject();
+        $queryParams = [];
+        $queryParams['query'] = $query;
+        $queryParams['conditions'] = $this->query['conditions'];
+
+        return $this->newObj($obj, $queryParams);
     }
 
-    private function newObj($array)
+    private function newObj($array,$query)
     {
         $class = get_called_class();
-        return new $class($array,true);
+        return new $class($array,$query,true);
     }
 }

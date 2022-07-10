@@ -16,7 +16,7 @@ class Post{
 
     public function create(){
         
-       var_dump($this->users->findAll());
+       var_dump($this->users->findAll()->order('ASC'));
         
        //$this->newUser();
     }
