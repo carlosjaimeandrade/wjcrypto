@@ -133,6 +133,12 @@ abstract class QueryBuilder
         return $this->newObj($stmt->fetchObject(), $query);
     }
 
+    /**
+     * create data in database
+     *
+     * @param array $datas
+     * @return bolean
+     */
     public function create($datas)
     {
         $pdo = Database::getConnection();
@@ -156,6 +162,12 @@ abstract class QueryBuilder
         }
     }
 
+    /**
+     * Order return mysql datas
+     *
+     * @param string
+     * @return object
+     */
     public function order($order)
     {
         $obj = [];
@@ -202,6 +214,13 @@ abstract class QueryBuilder
         return $this->newObj($stmt->fetchObject(), $queryParams);
     }
 
+    /**
+     * create obj
+     *
+     * @param array $array
+     * @param array $query
+     * @return object
+     */
     private function newObj($array, $query)
     {
         $class = get_called_class();
