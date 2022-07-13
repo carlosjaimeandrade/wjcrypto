@@ -16,8 +16,10 @@ abstract class QueryBuilder
 
         if ($define) {
             if (!is_array($atributes)) {
-                foreach ($atributes as $key => $value) {
-                    $this->$key = $value;
+                if(!empty($atributes)) {
+                    foreach ($atributes as $key => $value) {
+                        $this->$key = $value;
+                    }
                 }
                 $this->find = "one";
             } else {
@@ -130,6 +132,7 @@ abstract class QueryBuilder
             'find' => 'one'
         ];
 
+
         return $this->newObj($stmt->fetchObject(), $query);
     }
 
@@ -139,7 +142,7 @@ abstract class QueryBuilder
      * @param array $datas
      * @return bolean
      */
-    public function create($datas)
+    public function create(array $datas)
     {
         $pdo = Database::getConnection();
         $columns = "";
@@ -151,12 +154,12 @@ abstract class QueryBuilder
         $columns = "(" . rtrim($columns, ", ") . ")";
         $values = "(" . rtrim($values, ", ") . ")";
 
-        $sql = "INSERT INTO users $columns VALUES $values";
+        $table = $this->table;
+        $sql = "INSERT INTO $table $columns VALUES $values";
         $stmt = $pdo->prepare($sql);
-
+       
         if ($stmt->execute($datas)) {
-            $this->lastInsertId = $pdo->lastInsertId();
-            return true;
+            return $pdo->lastInsertId();
         } else {
             return false;
         }
@@ -168,7 +171,7 @@ abstract class QueryBuilder
      * @param string
      * @return object
      */
-    public function order($order)
+    public function order(string $order)
     {
         $obj = [];
         $query = $this->query['query'] . " ORDER BY id $order";
@@ -221,9 +224,9 @@ abstract class QueryBuilder
      * @param array $query
      * @return object
      */
-    private function newObj($array, $query)
+    private function newObj($attributes, $query)
     {
         $class = get_called_class();
-        return new $class($array, $query, true);
+        return new $class($attributes, $query, true);
     }
 }
