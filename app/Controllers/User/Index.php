@@ -4,6 +4,7 @@ namespace App\Controllers\User;
 
 use App\Controllers\User\Http\Post;
 use Src\help\Json;
+use App\Models\Users;
 
 class Index
 {
@@ -30,6 +31,10 @@ class Index
         if ($httpMethod == "post") {
             $this->post->create();
             exit();
+        }
+
+        if ($httpMethod == "get") {
+       
         }
 
         $this->json->response(['error' => "Access denied."], 401); 

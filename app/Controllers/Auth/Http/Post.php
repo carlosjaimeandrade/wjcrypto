@@ -49,10 +49,15 @@ class Post{
      */
     private function userPermission(){
         $body = $this->json->request();
+
+        if(empty($body['email']) OR empty($body['password'])){
+            return false;
+        }
+
         $password = md5($body['password']);
         $user = $this->users->findOne(['*'], ["email" => $body['email'],  "password" => $password]);
-
-        if(empty($user)){
+        
+        if(empty($user->email)){
             return false;
         }
 
@@ -68,7 +73,7 @@ class Post{
     private function token($user):void{
         $key = "Aswd212$$@#as@ad2f58456s485a4as984d872";
         $payload = [
-            'id' => $user->id,
+            'id' => $user->id ,
             'name' => $user->name,
             'email' => $user->email,
             'exp' => time() + 3600

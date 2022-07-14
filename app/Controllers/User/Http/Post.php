@@ -18,6 +18,7 @@ class Post{
 
     public function create(){
 
+        
         if($this->emailIsDuplicate()){
             $this->json->response(['error'=> "user already registered"], 400);
             exit();
@@ -29,6 +30,7 @@ class Post{
         }
 
         if(!$this->newAccount()){ 
+            $this->rollbackUser();
             $this->json->response(['message'=> "bad request"], 400);  
             exit();
         }
@@ -85,12 +87,32 @@ class Post{
      */
     private function emailIsDuplicate(){
         $body = $this->json->request();
+        if(empty($body['email'])){
+            $this->json->response(['message'=> "bad request"], 400);
+            exit();
+        }
         $user = $this->users->get(['*'], ['email' => $body['email']]);
         if(empty($user->name)){
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * restory insert user
+     *
+     * @return bolean
+     */
+    private function rollbackUser(){
+        if($this->userId == null){
+            return false;
+            exit();
+        }
+
+        if($this->users->delete($this->userId)){
+            return true;
+        }
     }
 
 }

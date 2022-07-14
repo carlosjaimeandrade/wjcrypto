@@ -49,4 +49,14 @@ class AccountsRepository{
     public function create(array $datas){
         return $this->accounts->create((array) $datas);
     }
+
+    /**
+     * number de rows in database
+     *
+     * @param int $id
+     * @return int
+     */
+    public function delete($id){
+        return $this->accounts->delete($id);
+    }
 }

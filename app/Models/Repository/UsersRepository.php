@@ -54,4 +54,14 @@ class UsersRepository{
     public function create(array $datas){
         return $this->users->create((array) $datas);
     }
+    
+    /**
+     * number de rows in database
+     *
+     * @param int $id
+     * @return int
+     */
+    public function delete($id){
+        return $this->users->delete($id);
+    }
 }

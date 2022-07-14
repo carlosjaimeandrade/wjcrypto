@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Src\help\Database;
+use PDOException;
+use PDO;
 
 abstract class QueryBuilder
 {
@@ -16,7 +18,7 @@ abstract class QueryBuilder
 
         if ($define) {
             if (!is_array($atributes)) {
-                if(!empty($atributes)) {
+                if (!empty($atributes)) {
                     foreach ($atributes as $key => $value) {
                         $this->$key = $value;
                     }
@@ -41,50 +43,26 @@ abstract class QueryBuilder
     public function findAll(array $attributes = ['*'], array $conditions = [])
     {
         $col = "";
-        $obj = [];
-        $query = [];
+        $table = $this->table;
+        
         foreach ($attributes as $attribute) {
             $col .= $attribute . " ,";
         }
         $col = rtrim($col, ',');
-        $pdo = Database::getConnection();
-        $table = $this->table;
-
-        if (count($conditions) > 0) {
-            $params = "";
-            foreach ($conditions as $param => $value) {
-                $params .= "{$param}=:{$param} AND ";
-            }
-            $params = rtrim($params, " AND ");
-            $stmt = $pdo->prepare("SELECT $col FROM $table WHERE $params");
-            $stmt->execute($conditions);
-
-            while ($row = $stmt->fetchObject()) {
-                $obj[] = $row;
-            }
-
-            $query = [
-                'query' => "SELECT $col FROM $table WHERE $params",
-                'conditions' => $conditions,
-                'find' => 'all'
-            ];
-
-            return $this->newObj($obj, $query);
+       
+        if (count($conditions) == 0) {
+            $sql = "SELECT $col FROM $table";
+            return $this->execute($sql, $conditions,'objectAll', 'all');
         }
 
-        $stmt = $pdo->query("SELECT $col FROM $table");
-
-        $query = [
-            'query' => "SELECT $col FROM $table",
-            'conditions' => "",
-            'find' => 'all'
-        ];
-
-        while ($row = $stmt->fetchObject()) {
-            $obj[] = $row;
+        $params = "";
+        foreach ($conditions as $param => $value) {
+            $params .= "{$param}=:{$param} AND ";
         }
+        $params = rtrim($params, " AND ");
 
-        return $this->newObj($obj, $query);
+        $sql = "SELECT $col FROM $table WHERE $params";
+        return $this->execute($sql, $conditions,'objectAll', 'all');
     }
 
     /**
@@ -96,44 +74,26 @@ abstract class QueryBuilder
      */
     public function findOne(array $attributes = ['*'], array $conditions = [])
     {
-        $query = [];
-        $pdo = Database::getConnection();
         $col = "";
         foreach ($attributes as $attribute) {
-            $col .= $attribute . " ,";
+            $col .= $attribute . ", ";
         }
-        $col = rtrim($col, ',');
+        $col = rtrim($col, ', ');
         $table = $this->table;
 
-        if (count($conditions) > 0) {
-            $params = "";
-            foreach ($conditions as $param => $value) {
-                $params .= "{$param}=:{$param} AND ";
-            }
-            $params = rtrim($params, " AND ");
-            $stmt = $pdo->prepare("SELECT $col FROM $table WHERE $params");
-
-            $query = [
-                'query' => "SELECT $col FROM $table WHERE $params",
-                'conditions' => $conditions,
-                'find' => 'one'
-            ];
-
-            $stmt->execute($conditions);
-
-            return $this->newObj($stmt->fetchObject(), $query);
+        if (count($conditions) == 0) {
+            $sql = "SELECT $col FROM $table";
+            return $this->execute($sql, $conditions,'objectOne', 'one');
         }
 
-        $stmt = $pdo->query("SELECT $col FROM $table");
+        $params = "";
+        foreach ($conditions as $param => $value) {
+            $params .= "{$param}=:{$param} AND ";
+        }
+        $params = rtrim($params, " AND ");
 
-        $query = [
-            'query' => "SELECT $col FROM $table",
-            'conditions' => "",
-            'find' => 'one'
-        ];
-
-
-        return $this->newObj($stmt->fetchObject(), $query);
+        $sql = "SELECT $col FROM $table WHERE $params";
+        return $this->execute($sql, $conditions,'objectOne', 'one');
     }
 
     /**
@@ -155,14 +115,38 @@ abstract class QueryBuilder
         $values = "(" . rtrim($values, ", ") . ")";
 
         $table = $this->table;
-        $sql = "INSERT INTO $table $columns VALUES $values";
-        $stmt = $pdo->prepare($sql);
-       
-        if ($stmt->execute($datas)) {
-            return $pdo->lastInsertId();
-        } else {
+
+        try {
+            $sql = "INSERT INTO $table $columns VALUES $values";
+            $stmt = $pdo->prepare($sql);
+            if ($stmt->execute($datas)) {
+                return $pdo->lastInsertId();
+            } else {
+                return false;
+            }
+        } catch (PDOException $e) {
             return false;
         }
+    }
+
+        /**
+     * delete one data in database
+     *
+     * @param int $id
+     * @return void
+     */
+    public function delete($id)
+    {
+        $pdo = Database::getConnection();
+        $table = $this->table;
+        $query = "DELETE FROM $table WHERE id = :id";
+        $stmt = $pdo->prepare($query);
+
+        if ($stmt->execute(['id' => $id])) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -185,7 +169,7 @@ abstract class QueryBuilder
                 'conditions' => $this->query['conditions'],
             ];
 
-            if($this->query['find'] == "all"){
+            if ($this->query['find'] == "all") {
                 while ($row = $stmt->fetchObject()) {
                     $obj[] = $row;
                 }
@@ -195,7 +179,6 @@ abstract class QueryBuilder
             }
 
             return $this->newObj($stmt->fetchObject(), $queryParams);
-         
         }
 
         $stmt->execute($this->query['conditions']);
@@ -205,11 +188,11 @@ abstract class QueryBuilder
             'conditions' => $this->query['conditions'],
         ];
 
-        if($this->query['find'] == "all"){
+        if ($this->query['find'] == "all") {
             while ($row = $stmt->fetchObject()) {
                 $obj[] = $row;
             }
-            
+
             return $this->newObj($obj, $queryParams);
             exit();
         }
@@ -228,5 +211,41 @@ abstract class QueryBuilder
     {
         $class = get_called_class();
         return new $class($attributes, $query, true);
+    }
+
+    /**
+     * execute pdo query
+     *
+     * @param string $sql
+     * @param array $conditions
+     * @param string $response
+     * @param null|string $find
+     * @return bolean|object
+     */
+    private function execute($sql, $conditions, $response, $find = null)
+    {
+        try {
+            $query = [
+                'query' => $sql,
+                'conditions' => $conditions,
+                'find' => $find
+            ];
+            $pdo = Database::getConnection();
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($conditions);
+           
+            if ($response == "objectAll") {
+                $obj = [];
+                while ($row = $stmt->fetchObject()) {
+                    $obj[] = $row;
+                }
+                return $this->newObj($obj, $query);
+            }
+            if ($response == "objectOne") {
+                return $this->newObj($stmt->fetchObject(), $query);
+            }
+        } catch (PDOException $e) {
+            return false;
+        }
     }
 }
