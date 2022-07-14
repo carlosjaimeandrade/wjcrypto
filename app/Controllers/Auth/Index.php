@@ -29,6 +29,11 @@ class Index{
             exit();
         }
 
+        if($httpMethod == "get"){
+            echo "auth descriptografar";
+            exit();
+        }
+
         $this->json->response(['error' => "Access denied."], 401);         
     }
 }

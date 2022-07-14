@@ -6,7 +6,8 @@ use Src\help\Routes;
 use Src\help\Json;
 use Src\help\Request;
 
-class Middleware{
+class Middleware
+{
 
     /**
      * @var array
@@ -31,26 +32,33 @@ class Middleware{
     /**
      * @param Routes $routes
      */
-    public function __construct(Routes $routes, Json $json, Request $request){
+    public function __construct(Routes $routes, Json $json, Request $request)
+    {
         $this->routes = $routes;
         $this->json = $json;
         $this->request = $request;
     }
-    
+
     /**
      * check page autorization
      * 
      * @param array
      * @return void
      */
-    public function check(){
-        foreach($this->pages as $page){
-            if($page == $this->routes->getPage()){
-                if(!$this->request->authorization()){
-                    $this->json->response(['error' => "Access denied."], 401);
-                    exit();
+    public function check()
+    {
+        $httpMethod = strtolower($_SERVER['REQUEST_METHOD']);
+        foreach ($this->pages as $page => $https) {
+            if ($page == $this->routes->getPage()) {
+                foreach ($https as $http) {
+                    if ($http == $httpMethod) {
+                        if (!$this->request->authorization()) {
+                            $this->json->response(['error' => "Access denied."], 401);
+                            exit();
+                        }
+                    }
                 }
-            }   
+            }
         }
 
         $this->routes->render();

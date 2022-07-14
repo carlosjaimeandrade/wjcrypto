@@ -12,7 +12,8 @@ $container = $containerBuilder->build();
 $middleware = $container->get('Src\help\Middleware');
 
 $middleware->pages = [
-    ''
+    '\App\Controllers\User\Index' => ['get'],
+    '\App\Controllers\Auth\Index' => ['get']
 ];
 
 $middleware->check();

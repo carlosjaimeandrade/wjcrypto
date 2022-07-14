@@ -34,7 +34,8 @@ class Index
         }
 
         if ($httpMethod == "get") {
-       
+            echo "teste";
+            exit();
         }
 
         $this->json->response(['error' => "Access denied."], 401); 
