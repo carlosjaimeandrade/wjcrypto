@@ -4,7 +4,7 @@ namespace App\Controllers\Auth\Http;
 
 use Firebase\JWT\JWT;
 use Src\help\Json;
-use App\Models\Users;
+use App\Models\Repository\UsersRepository;
 
 class Post{
 
@@ -22,7 +22,7 @@ class Post{
      * @param Json $json
      * @param Users $users
      */
-    public function __construct(Json $json, Users $users){
+    public function __construct(Json $json, UsersRepository $users){
         $this->json = $json;
         $this->users = $users;
     }
@@ -55,7 +55,7 @@ class Post{
         }
 
         $password = md5($body['password']);
-        $user = $this->users->findOne(['*'], ["email" => $body['email'],  "password" => $password]);
+        $user = $this->users->get(['*'], ["email" => $body['email'],  "password" => $password]);
         
         if(empty($user->email)){
             return false;
