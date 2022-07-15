@@ -3,20 +3,37 @@
 namespace App\Controllers\User;
 
 use App\Controllers\User\Http\Post;
+use App\Controllers\User\Http\Get;
 use Src\help\Json;
-use App\Models\Users;
+
 
 class Index
 {
 
     /**
+     * @var Post
+     */
+    private $post;
+
+    /**
+     * @var Json
+     */
+    private $json;
+
+    /**
+     * @var Get
+     */
+    private $get;
+
+    /**
      * @param Post $post
      * @param Json $json
      */
-    public function __construct(Post $post, Json $json)
+    public function __construct(Post $post, Json $json, Get $get)
     {
         $this->post = $post;
-        $this->json = $json; 
+        $this->json = $json;
+        $this->get = $get;
     }
 
     /**
@@ -34,10 +51,10 @@ class Index
         }
 
         if ($httpMethod == "get") {
-            echo "teste";
+            $this->get->create();
             exit();
         }
 
-        $this->json->response(['error' => "Access denied."], 401); 
+        $this->json->response(['error' => "Access denied."], 401);
     }
 }

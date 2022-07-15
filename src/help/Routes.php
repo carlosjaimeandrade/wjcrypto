@@ -70,13 +70,15 @@ class Routes
             $container = $containerBuilder->build();
             $active = $container->get($class);
         } else {
-            echo "pagina não encontrada";
+            http_response_code(404);
+            echo json_encode(['error' => "Endpoint invalid"]);
             exit();
         }
         if (method_exists($active, $method)) {
             $active->$method();
         } else {
-            echo "pagina não encontrada";
+            http_response_code(404);
+            echo json_encode(['error' => "Endpoint invalid"]);
         }
     }
 

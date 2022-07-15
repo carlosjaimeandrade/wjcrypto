@@ -28,7 +28,7 @@ class UsersRepository{
      *
      * @param array $attributes
      * @param array $conditions
-     * @return void
+     * @return Users
      */
     public function get(array $attributes = ['*'], array $conditions = []){
         return $this->users->findOne($attributes, $conditions);
@@ -39,7 +39,7 @@ class UsersRepository{
      *
      * @param array $attributes
      * @param array $conditions
-     * @return void
+     * @return Users
      */
     public function all(array $attributes = ['*'], array $conditions = []){
         return $this->users->findAll($attributes, $conditions);

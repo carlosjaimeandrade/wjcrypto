@@ -50,6 +50,6 @@ class Index
             exit();
         }
 
-        $this->json->response(['error' => "Access denied."], 401);
+        $this->json->response(['error' => "Method Not Allowed"], 405);
     }
 }

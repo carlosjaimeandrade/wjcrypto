@@ -11,9 +11,9 @@ abstract class QueryBuilder
     /**
      * @var string
      */
-    public $table;
+    protected $table;
 
-    public function __construct($atributes = [], $query = [], $define = false)
+    public function __construct($atributes = [], $define = false)
     {
 
         if ($define) {
@@ -23,14 +23,12 @@ abstract class QueryBuilder
                         $this->$key = $value;
                     }
                 }
-                $this->find = "one";
             } else {
                 $this->datas = $atributes;
-                $this->find = "all";
             }
         }
 
-        $this->query = $query;
+        
     }
 
     /**
@@ -80,7 +78,7 @@ abstract class QueryBuilder
         }
         $col = rtrim($col, ', ');
         $table = $this->table;
-
+        
         if (count($conditions) == 0) {
             $sql = "SELECT $col FROM $table";
             return $this->execute($sql, $conditions,'objectOne', 'one');
@@ -147,57 +145,6 @@ abstract class QueryBuilder
         }
 
         return false;
-    }
-
-    /**
-     * Order return mysql datas
-     *
-     * @param string
-     * @return object
-     */
-    public function order(string $order)
-    {
-        $obj = [];
-        $query = $this->query['query'] . " ORDER BY id $order";
-        $pdo = Database::getConnection();
-        $stmt = $pdo->prepare($query);
-        if ($this->query['conditions'] == "") {
-            $stmt->execute();
-
-            $queryParams = [
-                'query' => $query,
-                'conditions' => $this->query['conditions'],
-            ];
-
-            if ($this->query['find'] == "all") {
-                while ($row = $stmt->fetchObject()) {
-                    $obj[] = $row;
-                }
-
-                return $this->newObj($obj, $queryParams);
-                exit();
-            }
-
-            return $this->newObj($stmt->fetchObject(), $queryParams);
-        }
-
-        $stmt->execute($this->query['conditions']);
-
-        $queryParams = [
-            'query' => $query,
-            'conditions' => $this->query['conditions'],
-        ];
-
-        if ($this->query['find'] == "all") {
-            while ($row = $stmt->fetchObject()) {
-                $obj[] = $row;
-            }
-
-            return $this->newObj($obj, $queryParams);
-            exit();
-        }
-
-        return $this->newObj($stmt->fetchObject(), $queryParams);
     }
 
     /**

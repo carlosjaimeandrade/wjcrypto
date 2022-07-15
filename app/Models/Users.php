@@ -9,6 +9,6 @@ class Users extends QueryBuilder{
     /**
      * @var string
      */
-    public $table = "users";
+    protected $table = "users";
 
 }
