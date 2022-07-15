@@ -76,7 +76,7 @@ class Post{
             'id' => $user->id ,
             'name' => $user->name,
             'email' => $user->email,
-            'exp' => time() + 3600
+            'exp' => time() + 7200
         ];
 
         $token = JWT::encode($payload, $key, 'HS256');
