@@ -133,7 +133,7 @@ abstract class QueryBuilder
      * @param int $id
      * @return void
      */
-    public function delete($id)
+    public function delete(int $id)
     {
         $pdo = Database::getConnection();
         $table = $this->table;
@@ -145,6 +145,41 @@ abstract class QueryBuilder
         }
 
         return false;
+    }
+
+    /**
+     * update value on database
+     *
+     * @param array $datas
+     * @param int $id
+     * @return bolean
+     */
+    public function update(array $datas,int $id){
+        $pdo = Database::getConnection();
+        $set = "";
+        foreach($datas as $key => $value){
+            $set .= "$key=:$key, ";
+        }
+
+        $set = rtrim($set, ', ');
+        $set = "$set WHERE id=:id";
+
+        $table = $this->table;
+        $datas['id'] = $id;
+        try {
+            $sql = "UPDATE $table SET $set";
+            var_dump($sql);
+            var_dump($datas);
+            $stmt = $pdo->prepare($sql);
+            if ($stmt->execute($datas)) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (PDOException $e) {
+            return false;
+        }
+
     }
 
     /**

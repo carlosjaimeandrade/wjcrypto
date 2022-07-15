@@ -18,7 +18,7 @@ class Get
      * @var UsersRepository
      */
     private $usersRepository;
-    
+
     /**
      * @var Json
      */
@@ -36,15 +36,20 @@ class Get
         $this->request = $request;
     }
 
+    /**
+     * create method HTTP
+     *
+     * @return json
+     */
     public function create()
     {
-        $id = $this->request->getParam('id');
-        $user =  $this->usersRepository->get(['id', 'name', 'email'], ['id' => $id]);
+        $email = $this->request->getParam('email');
+        $user =  $this->usersRepository->get(['id', 'name', 'email'], ['email' => $email]);
 
-        if(!empty($user->name)){
+        if (!empty($user->name)) {
             return $this->json->response($user, 200);
         }
-        
-        return $this->json->response(['message'=> "bad request"], 400);  
+
+        return $this->json->response(['message' => "bad request"], 400);
     }
 }

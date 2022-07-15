@@ -4,7 +4,8 @@ namespace App\Models\Repository;
 
 use App\Models\Users;
 
-class UsersRepository{
+class UsersRepository
+{
 
     /**
      * @var Users
@@ -19,7 +20,8 @@ class UsersRepository{
     /**
      * @param Users $users
      */
-    public function __construct(Users $users){
+    public function __construct(Users $users)
+    {
         $this->users = $users;
     }
 
@@ -30,10 +32,11 @@ class UsersRepository{
      * @param array $conditions
      * @return Users
      */
-    public function get(array $attributes = ['*'], array $conditions = []){
+    public function get(array $attributes = ['*'], array $conditions = [])
+    {
         return $this->users->findOne($attributes, $conditions);
     }
-    
+
     /**
      * get all item from database
      *
@@ -41,7 +44,8 @@ class UsersRepository{
      * @param array $conditions
      * @return Users
      */
-    public function all(array $attributes = ['*'], array $conditions = []){
+    public function all(array $attributes = ['*'], array $conditions = [])
+    {
         return $this->users->findAll($attributes, $conditions);
     }
 
@@ -51,17 +55,31 @@ class UsersRepository{
      * @param $array $datas
      * @return void
      */
-    public function create(array $datas){
+    public function create(array $datas)
+    {
         return $this->users->create((array) $datas);
     }
-    
+
     /**
      * number de rows in database
      *
      * @param int $id
      * @return int
      */
-    public function delete($id){
+    public function delete($id)
+    {
         return $this->users->delete($id);
+    }
+
+    /**
+     * update value on database
+     *
+     * @param array $datas
+     * @param int $id
+     * @return bolean
+     */
+    public function update($datas, $id)
+    {
+        return $this->users->update($datas, $id);
     }
 }

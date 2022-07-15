@@ -23,7 +23,7 @@ class AccountsRepository{
      *
      * @param array $attributes
      * @param array $conditions
-     * @return void
+     * @return Accounts
      */
     public function get(array $attributes = ['*'], array $conditions = []){
         return $this->accounts->findOne($attributes, $conditions);
@@ -34,7 +34,7 @@ class AccountsRepository{
      *
      * @param array $attributes
      * @param array $conditions
-     * @return void
+     * @return Accounts
      */
     public function all(array $attributes = ['*'], array $conditions = []){
         return $this->accounts->findAll($attributes, $conditions);
@@ -58,5 +58,16 @@ class AccountsRepository{
      */
     public function delete($id){
         return $this->accounts->delete($id);
+    }
+
+    /**
+     * update value on database
+     *
+     * @param array $datas
+     * @param int $id
+     * @return bolean
+     */
+    public function update($datas, $id){
+        return $this->accounts->update($datas,$id);
     }
 }

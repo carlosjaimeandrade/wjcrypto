@@ -68,7 +68,7 @@ class Post{
     /**
      * define token
      *
-     * @return void
+     * @return json
      */
     private function token($user):void{
         $key = "Aswd212$$@#as@ad2f58456s485a4as984d872";

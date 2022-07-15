@@ -13,7 +13,8 @@ $middleware = $container->get('Src\help\Middleware');
 
 $middleware->pages = [
     '\App\Controllers\User\Index' => ['get'],
-    '\App\Controllers\Auth\Index' => ['get']
+    '\App\Controllers\Auth\Index' => ['get'], 
+    '\App\Controllers\Deposit\Index' => ['post']
 ];
 
 $middleware->check();

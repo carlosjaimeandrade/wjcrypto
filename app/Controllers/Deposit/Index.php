@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Controllers\User;
+namespace App\Controllers\Deposit;
 
-use App\Controllers\User\Http\Post;
-use App\Controllers\User\Http\Get;
+use App\Controllers\Deposit\Http\Post;
 use Src\help\Json;
 
 
@@ -21,19 +20,13 @@ class Index
     private $json;
 
     /**
-     * @var Get
-     */
-    private $get;
-
-    /**
      * @param Post $post
      * @param Json $json
      */
-    public function __construct(Post $post, Json $json, Get $get)
+    public function __construct(Post $post, Json $json)
     {
         $this->post = $post;
         $this->json = $json;
-        $this->get = $get;
     }
 
     /**
@@ -47,11 +40,6 @@ class Index
 
         if ($httpMethod == "post") {
             $this->post->create();
-            exit();
-        }
-
-        if ($httpMethod == "get") {
-            $this->get->create();
             exit();
         }
 

@@ -28,6 +28,11 @@ class Get
         $this->request = $request;
     }
 
+    /**
+     * create method HTTP
+     *
+     * @return json
+     */
     public function create()
     {
         return $this->json->response($this->request->authorization(true),200);
