@@ -8,6 +8,9 @@ use PDO;
 
 abstract class QueryBuilder
 {
+    const OBJECT_ALL = "objectAll";
+    const OBJECT_ONE = "objectOne";
+
     /**
      * @var string
      */
@@ -168,8 +171,6 @@ abstract class QueryBuilder
         $datas['id'] = $id;
         try {
             $sql = "UPDATE $table SET $set";
-            var_dump($sql);
-            var_dump($datas);
             $stmt = $pdo->prepare($sql);
             if ($stmt->execute($datas)) {
                 return true;
@@ -216,14 +217,14 @@ abstract class QueryBuilder
             $stmt = $pdo->prepare($sql);
             $stmt->execute($conditions);
            
-            if ($response == "objectAll") {
+            if ($response == self::OBJECT_ALL) {
                 $obj = [];
                 while ($row = $stmt->fetchObject()) {
                     $obj[] = $row;
                 }
                 return $this->newObj($obj, $query);
             }
-            if ($response == "objectOne") {
+            if ($response == self::OBJECT_ONE) {
                 return $this->newObj($stmt->fetchObject(), $query);
             }
         } catch (PDOException $e) {

@@ -29,7 +29,7 @@ class Get
     }
 
     /**
-     * create method HTTP
+     * encoder hash jwt
      *
      * @return json
      */

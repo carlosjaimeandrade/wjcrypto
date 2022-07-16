@@ -37,7 +37,7 @@ class Get
     }
 
     /**
-     * create method HTTP
+     * get a user from url
      *
      * @return json
      */

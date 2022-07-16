@@ -27,14 +27,12 @@ class Post
     }
 
     /**
-     * create method HTTP
+     * create new user in database
      *
      * @return json
      */
     public function create()
     {
-
-
         if ($this->emailIsDuplicate()) {
             $this->json->response(['error' => "user already registered"], 400);
             exit();
@@ -63,6 +61,11 @@ class Post
     private function newUser()
     {
         $body = $this->json->request();
+        
+        if(count($body) != 9){
+            return false;
+        }
+
         $body['password'] = md5($body['password']);
 
         $this->userId = $this->users->create($body);

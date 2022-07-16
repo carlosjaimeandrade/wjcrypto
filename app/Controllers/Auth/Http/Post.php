@@ -28,7 +28,7 @@ class Post{
     }
 
     /**
-     * create method HTTP
+     *  create hash for user
      *
      * @return json
      */

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controllers\Deposit\Http;
+namespace App\Controllers\Removal\Http;
 
 use App\Models\Repository\AccountsRepository;
 use Src\help\Request;
@@ -54,8 +54,19 @@ class Post
         $id = $user->id;
         $account = $this->accountsRepository->get(['*', 'id' => $id]);
         $valueAccount = base64_decode($account->value);
-        $newValue = base64_encode($data['value'] + $valueAccount);
 
+        if($valueAccount <= 0){
+            $this->json->response(['error' => "you don't have balance"], 400);
+            exit();
+        }
+
+        if($valueAccount - $data['value'] < 0){
+            $this->json->response(['error' => "you don't have balance"], 400);
+            exit();
+        }
+
+        $newValue = base64_encode($valueAccount - $data['value']);
+       
         if(!$this->accountsRepository->update(['value'=> $newValue], $account->id)){
             $this->json->response(['error' => "Access denied."], 400);
         }
