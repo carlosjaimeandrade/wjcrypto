@@ -35,13 +35,8 @@ class Post
     {
         $data = $this->json->request();
 
-        if(empty($data['value'])){
-            $this->json->response(['error' => "Bad request."], 400);
-            exit();
-        }
-
-        if(!is_numeric($data['value'])){
-            $this->json->response(['error' => "Bad request."], 400);
+        if(!$this->validateInput($data)){
+            $this->json->response(['error' => "Bad reque22st."], 400);
             exit();
         }
     
@@ -72,5 +67,24 @@ class Post
         }
         
         $this->json->response(['message' => "success"], 200);
+    }
+
+
+    /**
+     * validate value request
+     *
+     * @param array $data
+     * @return bolean
+     */
+    private function validateInput($data){
+        if(empty($data['value'])){
+           return false;
+        }
+
+        if(!is_numeric($data['value'])){
+            return false;
+        }
+
+        return true;
     }
 }

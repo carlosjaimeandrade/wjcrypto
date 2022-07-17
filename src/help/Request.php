@@ -3,16 +3,34 @@
 namespace Src\help;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
-use App\Models\Users;
+use App\Models\Repository\UsersRepository;
+use App\Models\Repository\AccountsRepository;
+use Src\help\Json;
 
 class Request
 {
+    /**
+     * @var UsersRepository
+     */
+    private $users;
+
+    /**
+     * @var AccountsRepository
+     */
+    private $accounts;
+
+    /**
+     * @var Json
+     */
+    private $json;
 
     /**
      * @param Users $users
      */
-    public function __construct(Users $users){
+    public function __construct(UsersRepository $users, AccountsRepository $accounts, Json $json){
         $this->users = $users;
+        $this->accounts = $accounts;
+        $this->json = $json;
     }
 
     /**
@@ -48,9 +66,12 @@ class Request
             }
             try {
                 $decoded = JWT::decode($token, new Key($key, 'HS256'));
-                
-                $user = $this->users->findOne(['*'], ["email" => $decoded->email]);
-               
+                $user = $this->users->get(['*'], ["email" => $decoded->email]);
+                $account = $this->accounts->get(['*'], ['users_id' => $user->id]);
+                $decoded = $this->json->request($decoded);
+                $decoded['account'] = base64_decode($account->account);
+                $decoded['value'] = base64_decode($account->value);
+
                 if(empty($user)){
                     return false;
                 }
