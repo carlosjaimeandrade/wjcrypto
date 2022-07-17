@@ -47,15 +47,15 @@ class Post
     
         $user = $this->request->authorization(true);
         
+
         if(!$user){
             $this->json->response(['error' => "Access denied."], 401);
         }
 
-        $id = $user->id;
-        $account = $this->accountsRepository->get(['*', 'id' => $id]);
+        $id = $user['id'];
+        $account = $this->accountsRepository->get(['*'], ['users_id' => $id]);
         $valueAccount = base64_decode($account->value);
         $newValue = base64_encode($data['value'] + $valueAccount);
-
         if(!$this->accountsRepository->update(['value'=> $newValue], $account->id)){
             $this->json->response(['error' => "Access denied."], 400);
         }

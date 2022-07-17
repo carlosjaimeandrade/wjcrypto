@@ -94,6 +94,7 @@ abstract class QueryBuilder
         $params = rtrim($params, " AND ");
 
         $sql = "SELECT $col FROM $table WHERE $params";
+        
         return $this->execute($sql, $conditions,'objectOne', 'one');
     }
 

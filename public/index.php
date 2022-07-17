@@ -16,6 +16,7 @@ $middleware->pages = [
     '\App\Controllers\Auth\Index' => ['get'], 
     '\App\Controllers\Deposit\Index' => ['post'],
     '\App\Controllers\Removal\Index' => ['post'],
+    '\App\Controllers\Transfer\Index' => ['post']
 ];
 
 $middleware->check();

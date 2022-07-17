@@ -36,7 +36,7 @@ class Post
         $data = $this->json->request();
 
         if(!$this->validateInput($data)){
-            $this->json->response(['error' => "Bad reque22st."], 400);
+            $this->json->response(['error' => "Bad request."], 400);
             exit();
         }
     
@@ -46,8 +46,9 @@ class Post
             $this->json->response(['error' => "Access denied."], 401);
         }
 
-        $id = $user->id;
-        $account = $this->accountsRepository->get(['*', 'id' => $id]);
+        $id = $user['id'];
+      
+        $account = $this->accountsRepository->get(['*'], ['users_id' => $id]);
         $valueAccount = base64_decode($account->value);
 
         if($valueAccount <= 0){

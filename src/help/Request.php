@@ -68,9 +68,15 @@ class Request
                 $decoded = JWT::decode($token, new Key($key, 'HS256'));
                 $user = $this->users->get(['*'], ["email" => $decoded->email]);
                 $account = $this->accounts->get(['*'], ['users_id' => $user->id]);
-                $decoded = $this->json->request($decoded);
-                $decoded['account'] = base64_decode($account->account);
-                $decoded['value'] = base64_decode($account->value);
+          
+              
+                $dataUser = [
+                    'id' => $decoded->id,
+                    'email' => $decoded->email,
+                    'account' => base64_decode($account->account),
+                    'value' => base64_decode($account->value),
+                ];
+          
 
                 if(empty($user)){
                     return false;
@@ -80,7 +86,7 @@ class Request
                     return true;
                 }
                 
-                return $decoded;
+                return $dataUser;
             } catch (\Exception $e) { // Also tried JwtException
                 return false;
             }
