@@ -42,7 +42,7 @@ class Post
     {
         $data = $this->json->request();
 
-        if(!$this->removalValueAccout($data)){
+        if(!$this->removalValueAccount($data)){
             $this->json->response(['error' => "Bad request"], 400);
         }
 
@@ -90,7 +90,7 @@ class Post
      * @param array $data
      * @return bolean
      */
-    private function removalValueAccout($data){
+    private function removalValueAccount($data){
         
         if(!$this->validateInput($data)){
             return false;
@@ -123,6 +123,12 @@ class Post
         return true;
     }
 
+    /**
+     * Transfer new value a account
+     *
+     * @param array $data
+     * @return bolean
+     */
     private function transfer($data){
 
         $user = $this->users->get(['*'], ['email' => $data['email']]);
