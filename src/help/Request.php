@@ -72,6 +72,7 @@ class Request
               
                 $dataUser = [
                     'id' => $decoded->id,
+                    'name' => $decoded->name,
                     'email' => $decoded->email,
                     'account' => base64_decode($account->account),
                     'value' => base64_decode($account->value),
