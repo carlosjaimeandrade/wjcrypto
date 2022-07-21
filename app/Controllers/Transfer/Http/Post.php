@@ -50,7 +50,7 @@ class Post
             $this->json->response(['error' => "Bad request"], 400);
         }
 
-        $this->json->response(['message' => "success"], 400);
+        $this->json->response(['message' => "success"], 200);
     }
 
 
