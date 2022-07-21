@@ -3,6 +3,7 @@
 namespace App\Controllers\Deposit\Http;
 
 use App\Models\Repository\AccountsRepository;
+use App\Models\Repository\HistoryRepository;
 use Src\help\Request;
 use Src\help\Json;
 
@@ -19,12 +20,23 @@ class Post
     private $accountsRepository;
 
     /**
+     * @var HistoryRepository
+     */
+    private $historyRepository;
+
+    /**
      * @param AccountsRepository $accountsRepository
      */
-    public function __construct(AccountsRepository $accountsRepository, Request $request, Json $json){
+    public function __construct(
+        AccountsRepository $accountsRepository,
+        Request $request,
+        Json $json,
+        HistoryRepository $historyRepository
+    ) {
         $this->accountsRepository = $accountsRepository;
         $this->request = $request;
         $this->json = $json;
+        $this->historyRepository = $historyRepository;
     }
     /**
      * deposit new value in account
@@ -35,20 +47,20 @@ class Post
     {
         $data = $this->json->request();
 
-        if(empty($data['value'])){
+        if (empty($data['value'])) {
             $this->json->response(['error' => "Bad request."], 400);
             exit();
         }
 
-        if(!is_numeric($data['value'])){
+        if (!is_numeric($data['value'])) {
             $this->json->response(['error' => "Bad request."], 400);
             exit();
         }
-    
+
         $user = $this->request->authorization(true);
-        
 
-        if(!$user){
+
+        if (!$user) {
             $this->json->response(['error' => "Access denied."], 401);
         }
 
@@ -56,9 +68,12 @@ class Post
         $account = $this->accountsRepository->get(['*'], ['users_id' => $id]);
         $valueAccount = base64_decode($account->value);
         $newValue = base64_encode($data['value'] + $valueAccount);
-        if(!$this->accountsRepository->update(['value'=> $newValue], $account->id)){
+        if (!$this->accountsRepository->update(['value' => $newValue], $account->id)) {
             $this->json->response(['error' => "Access denied."], 400);
         }
+
+        $deposit = number_format($data['value'],2,",",".");
+        $this->historyRepository->create(["description" => "Depósito de $deposit", "category" => "deposit", 'users_id' => $id]);
         
         $this->json->response(['message' => "success"], 200);
     }

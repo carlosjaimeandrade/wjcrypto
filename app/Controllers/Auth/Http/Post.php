@@ -5,6 +5,7 @@ namespace App\Controllers\Auth\Http;
 use Firebase\JWT\JWT;
 use Src\help\Json;
 use App\Models\Repository\UsersRepository;
+use App\Models\Repository\HistoryRepository;
 
 class Post{
 
@@ -19,12 +20,18 @@ class Post{
     private $json;
 
     /**
+     * @var HistoryRepository
+     */
+    private $historyRepository;
+
+    /**
      * @param Json $json
      * @param Users $users
      */
-    public function __construct(Json $json, UsersRepository $users){
+    public function __construct(Json $json, UsersRepository $users, HistoryRepository $historyRepository){
         $this->json = $json;
         $this->users = $users;
+        $this->historyRepository = $historyRepository;
     }
 
     /**
@@ -78,9 +85,11 @@ class Post{
             'email' => $user->email,
             'exp' => time() + 7200
         ];
-
+        
         $token = JWT::encode($payload, $key, 'HS256');
         $this->token = $token;
+
+        $this->historyRepository->create(["description" => "Login realizado", "category" => "login", 'users_id' => $user->id]);
     }
 
 }

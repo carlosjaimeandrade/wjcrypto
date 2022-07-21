@@ -4,6 +4,7 @@ namespace App\Controllers\Transfer\Http;
 
 use App\Models\Repository\AccountsRepository;
 use App\Models\Repository\UsersRepository;
+use App\Models\Repository\HistoryRepository;
 use Src\help\Request;
 use Src\help\Json;
 
@@ -25,13 +26,25 @@ class Post
     private  $users;
 
     /**
+     * @var HistoryRepository
+     */
+    private $historyRepository;
+
+    /**
      * @param AccountsRepository $accountsRepository
      */
-    public function __construct(AccountsRepository $accountsRepository, UsersRepository $users, Request $request, Json $json){
+    public function __construct(
+        AccountsRepository $accountsRepository,
+        UsersRepository $users,
+        Request $request,
+        Json $json,
+        HistoryRepository $historyRepository
+    ) {
         $this->accountsRepository = $accountsRepository;
         $this->request = $request;
         $this->json = $json;
         $this->users =  $users;
+        $this->historyRepository = $historyRepository;
     }
     /**
      * deposit new value in account
@@ -42,11 +55,11 @@ class Post
     {
         $data = $this->json->request();
 
-        if(!$this->removalValueAccount($data)){
+        if (!$this->removalValueAccount($data)) {
             $this->json->response(['error' => "Bad request"], 400);
         }
 
-        if(!$this->transfer($data)){
+        if (!$this->transfer($data)) {
             $this->json->response(['error' => "Bad request"], 400);
         }
 
@@ -60,24 +73,25 @@ class Post
      * @param array $data
      * @return bolean
      */
-    private function validateInput($data){
-        if(empty($data['value'])){
-           return false;
-        }
-
-        if(!is_numeric($data['value'])){
+    private function validateInput($data)
+    {
+        if (empty($data['value'])) {
             return false;
         }
 
-        if(empty($data['email'])){
-            return false;
-         }
-
-        if(!is_string($data['email'])){
+        if (!is_numeric($data['value'])) {
             return false;
         }
 
-        if(count($data) != 2){
+        if (empty($data['email'])) {
+            return false;
+        }
+
+        if (!is_string($data['email'])) {
+            return false;
+        }
+
+        if (count($data) != 2) {
             return false;
         }
 
@@ -90,15 +104,16 @@ class Post
      * @param array $data
      * @return bolean
      */
-    private function removalValueAccount($data){
-        
-        if(!$this->validateInput($data)){
+    private function removalValueAccount($data)
+    {
+
+        if (!$this->validateInput($data)) {
             return false;
         }
-    
+
         $user = $this->request->authorization(true);
-        
-        if(!$user){
+
+        if (!$user) {
             return false;
         }
 
@@ -106,20 +121,20 @@ class Post
         $account = $this->accountsRepository->get(['*'], ['users_id' => $id]);
         $valueAccount = base64_decode($account->value);
 
-        if($valueAccount <= 0){
+        if ($valueAccount <= 0) {
             return false;
         }
 
-        if($valueAccount - $data['value'] < 0){
+        if ($valueAccount - $data['value'] < 0) {
             return false;
         }
 
         $newValue = base64_encode($valueAccount - $data['value']);
-       
-        if(!$this->accountsRepository->update(['value'=> $newValue], $account->id)){
+
+        if (!$this->accountsRepository->update(['value' => $newValue], $account->id)) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -129,19 +144,25 @@ class Post
      * @param array $data
      * @return bolean
      */
-    private function transfer($data){
+    private function transfer($data)
+    {
+        $user = $this->request->authorization(true);
+        $id = $user['id'];
 
         $user = $this->users->get(['*'], ['email' => $data['email']]);
-       
+
         $account = $this->accountsRepository->get(['*'], ['users_id' => $user->id]);
         $valueAccount = base64_decode($account->value);
 
         $newValue = base64_encode($valueAccount + $data['value']);
-       
-        if(!$this->accountsRepository->update(['value'=> $newValue], $account->id)){
+
+        if (!$this->accountsRepository->update(['value' => $newValue], $account->id)) {
             return false;
         }
 
+        $transferValue = number_format($data['value'], 2, ",", ".");
+        $name = $user->name;
+        $this->historyRepository->create(["description" => "Transferência de $transferValue para $name", "category" => "transfer", 'users_id' => $id]);
         return true;
     }
 }
