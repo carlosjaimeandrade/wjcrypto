@@ -73,7 +73,9 @@ class Post
         }
 
         $deposit = number_format($data['value'],2,",",".");
-        $this->historyRepository->create(["description" => "Depósito de $deposit", "category" => "deposit", 'users_id' => $id]);
+        $description = base64_encode("Depósito de $deposit");
+        $category = base64_encode('deposit');
+        $this->historyRepository->create(["description" => $description, "category" =>  $category, 'users_id' => $id]);
         
         $this->json->response(['message' => "success"], 200);
     }

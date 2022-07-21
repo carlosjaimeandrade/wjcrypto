@@ -162,7 +162,9 @@ class Post
 
         $transferValue = number_format($data['value'], 2, ",", ".");
         $name = $user->name;
-        $this->historyRepository->create(["description" => "Transferência de $transferValue para $name", "category" => "transfer", 'users_id' => $id]);
+        $description = base64_encode("Transferência de $transferValue para $name");
+        $category = base64_encode('transfer');
+        $this->historyRepository->create(["description" => $description , "category" =>  $category, 'users_id' => $id]);
         return true;
     }
 }

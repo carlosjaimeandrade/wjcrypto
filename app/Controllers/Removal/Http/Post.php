@@ -75,7 +75,9 @@ class Post
         }
 
         $removal = number_format($data['value'], 2, ",", ".");
-        $this->historyRepository->create(["description" => "Retira de $removal", "category" => "removal", 'users_id' => $id]);
+        $description = base64_encode("Retira de $removal");
+        $category = base64_encode('removal');
+        $this->historyRepository->create(["description" => $description, "category" => $category , 'users_id' => $id]);
 
         $this->json->response(['message' => "success"], 200);
     }

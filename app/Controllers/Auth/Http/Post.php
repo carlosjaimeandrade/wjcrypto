@@ -89,7 +89,9 @@ class Post{
         $token = JWT::encode($payload, $key, 'HS256');
         $this->token = $token;
 
-        $this->historyRepository->create(["description" => "Login realizado", "category" => "login", 'users_id' => $user->id]);
+        $description = base64_encode('Login realizado');
+        $category = base64_encode('Login');
+        $this->historyRepository->create(["description" => $description, "category" => $category, 'users_id' => $user->id]);
     }
 
 }
