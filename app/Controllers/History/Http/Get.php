@@ -58,7 +58,7 @@ class Get
             $date = date_create($history->createdAt);
             $log[] = ['description' => base64_decode($history->description), 'createdAt' => date_format($date, 'd-m-Y H:i:s')];
         }
-
-        $this->json->response($log , 200);
+       
+        $this->json->response($log, 200);
     }
 }

@@ -51,6 +51,7 @@ class Post
 
         if (!$user) {
             $this->json->response(['error' => "Access denied."], 401);
+            exit();
         }
 
         $id = $user['id'];
@@ -72,6 +73,7 @@ class Post
 
         if (!$this->accountsRepository->update(['value' => $newValue], $account->id)) {
             $this->json->response(['error' => "Access denied."], 400);
+            exit();
         }
 
         $removal = number_format($data['value'], 2, ",", ".");

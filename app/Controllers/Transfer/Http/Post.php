@@ -57,10 +57,12 @@ class Post
 
         if (!$this->removalValueAccount($data)) {
             $this->json->response(['error' => "Bad request"], 400);
+            exit();
         }
 
         if (!$this->transfer($data)) {
             $this->json->response(['error' => "Bad request"], 400);
+            exit();
         }
 
         $this->json->response(['message' => "success"], 200);
@@ -146,12 +148,12 @@ class Post
      */
     private function transfer($data)
     {
-        $user = $this->request->authorization(true);
-        $id = $user['id'];
+        $userEmiter = $this->request->authorization(true);
+        $id = $userEmiter['id'];
 
-        $user = $this->users->get(['*'], ['email' => $data['email']]);
+        $userReceiver = $this->users->get(['*'], ['email' => $data['email']]);
 
-        $account = $this->accountsRepository->get(['*'], ['users_id' => $user->id]);
+        $account = $this->accountsRepository->get(['*'], ['users_id' => $userReceiver->id]);
         $valueAccount = base64_decode($account->value);
 
         $newValue = base64_encode($valueAccount + $data['value']);
@@ -161,10 +163,16 @@ class Post
         }
 
         $transferValue = number_format($data['value'], 2, ",", ".");
-        $name = $user->name;
+        $name = $userReceiver->name;
+       
         $description = base64_encode("Transferência de $transferValue para $name");
         $category = base64_encode('transfer');
         $this->historyRepository->create(["description" => $description , "category" =>  $category, 'users_id' => $id]);
+       
+        $name = $userEmiter['name'];
+        $category = base64_encode('deposit');
+        $description = base64_encode("Recebido valor de $transferValue enviado por $name");
+        $this->historyRepository->create(["description" => $description , "category" =>  $category, 'users_id' => $userReceiver->id]);
         return true;
     }
 }

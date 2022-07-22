@@ -90,7 +90,7 @@ class Post{
         $this->token = $token;
 
         $description = base64_encode('Login realizado');
-        $category = base64_encode('Login');
+        $category = base64_encode('login');
         $this->historyRepository->create(["description" => $description, "category" => $category, 'users_id' => $user->id]);
     }
 

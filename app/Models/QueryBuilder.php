@@ -52,7 +52,7 @@ abstract class QueryBuilder
         $col = rtrim($col, ',');
        
         if (count($conditions) == 0) {
-            $sql = "SELECT $col FROM $table";
+            $sql = "SELECT $col FROM $table ORDER BY ID DESC";
             return $this->execute($sql, $conditions,'objectAll', 'all');
         }
 
@@ -62,7 +62,7 @@ abstract class QueryBuilder
         }
         $params = rtrim($params, " AND ");
 
-        $sql = "SELECT $col FROM $table WHERE $params";
+        $sql = "SELECT $col FROM $table WHERE $params ORDER BY ID DESC";
         return $this->execute($sql, $conditions,'objectAll', 'all');
     }
 
