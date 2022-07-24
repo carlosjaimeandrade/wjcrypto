@@ -7,6 +7,7 @@ use App\Models\Repository\UsersRepository;
 use App\Models\Repository\HistoryRepository;
 use Src\help\Request;
 use Src\help\Json;
+use Src\help\Monolog;
 
 class Post
 {
@@ -31,20 +32,32 @@ class Post
     private $historyRepository;
 
     /**
+     * @var Monolog
+     */
+    private $monolog;
+
+    /**
      * @param AccountsRepository $accountsRepository
+     * @param UsersRepository $users
+     * @param Request $request
+     * @param Json $json
+     * @param HistoryRepository $historyRepository
+     * @param Monolog $monolog
      */
     public function __construct(
         AccountsRepository $accountsRepository,
         UsersRepository $users,
         Request $request,
         Json $json,
-        HistoryRepository $historyRepository
+        HistoryRepository $historyRepository,
+        Monolog $monolog
     ) {
         $this->accountsRepository = $accountsRepository;
         $this->request = $request;
         $this->json = $json;
         $this->users =  $users;
         $this->historyRepository = $historyRepository;
+        $this->monolog = $monolog;
     }
     /**
      * deposit new value in account
@@ -153,6 +166,10 @@ class Post
 
         $userReceiver = $this->users->get(['*'], ['email' => $data['email']]);
 
+        if(empty($userReceiver->id)){
+            return false;
+        }
+
         $account = $this->accountsRepository->get(['*'], ['users_id' => $userReceiver->id]);
         $valueAccount = base64_decode($account->value);
 
@@ -173,6 +190,8 @@ class Post
         $category = base64_encode('deposit');
         $description = base64_encode("Recebido valor de $transferValue enviado por $name");
         $this->historyRepository->create(["description" => $description , "category" =>  $category, 'users_id' => $userReceiver->id]);
+        $valueTransfer = base64_encode($data['value']);
+        $this->monolog->logger("transfer from {$valueTransfer} to $userReceiver->name sent from {$userEmiter['name']}");
         return true;
     }
 }

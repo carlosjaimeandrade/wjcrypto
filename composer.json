@@ -15,6 +15,7 @@
     ],
     "require": {
         "php-di/php-di": "^6.4",
-        "firebase/php-jwt": "^6.2"
+        "firebase/php-jwt": "^6.2",
+        "monolog/monolog": "^2.7"
     }
 }

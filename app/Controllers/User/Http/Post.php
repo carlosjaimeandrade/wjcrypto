@@ -3,6 +3,7 @@
 namespace App\Controllers\User\Http;
 
 use Src\help\Json;
+use Src\help\Monolog;
 use App\Models\Repository\UsersRepository;
 use App\Models\Repository\AccountsRepository;
 
@@ -15,15 +16,32 @@ class Post
     private $userId = null;
 
     /**
+     * @var Json
+     */
+    private $json;
+
+    /**
+     * @var UsersRepository
+     */
+    private $users;
+
+    /**
+     * @var AccountsRepository
+     */
+    private $accounts;
+
+    /**
      * @param Json $json
      * @param UsersRepository $users
      * @param AccountsRepository $accounts
+     * @param Monolog $monolog
      */
-    public function __construct(Json $json, UsersRepository $users, AccountsRepository $accounts)
+    public function __construct(Json $json, UsersRepository $users, AccountsRepository $accounts, Monolog $monolog)
     {
         $this->json = $json;
         $this->users = $users;
         $this->accounts = $accounts;
+        $this->monolog = $monolog;
     }
 
     /**
@@ -61,8 +79,8 @@ class Post
     private function newUser()
     {
         $body = $this->json->request();
-        
-        if(count($body) != 9){
+
+        if (count($body) != 9) {
             return false;
         }
 
@@ -74,6 +92,7 @@ class Post
             exit();
         }
 
+        $this->monolog->logger("New user create {$body['name']}");
         return true;
     }
 
@@ -94,6 +113,7 @@ class Post
         $value = base64_encode(0);
 
         if ($this->accounts->create(['account' => $account, 'value' => $value, 'users_id' => $this->userId])) {
+            $this->monolog->logger("New account create $account");
             return true;
             exit();
         }
@@ -134,6 +154,8 @@ class Post
         }
 
         if ($this->users->delete($this->userId)) {
+            $id = $this->userId;
+            $this->monolog->logger("Error create new account user $id",'error');
             return true;
         }
     }

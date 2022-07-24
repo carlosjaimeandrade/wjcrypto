@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Src\help\Database;
 use PDOException;
-use PDO;
+use Src\help\Monolog;
 
-abstract class QueryBuilder
+abstract class QueryBuilder extends Monolog
 {
     const OBJECT_ALL = "objectAll";
     const OBJECT_ONE = "objectOne";
@@ -30,8 +30,6 @@ abstract class QueryBuilder
                 $this->datas = $atributes;
             }
         }
-
-        
     }
 
     /**
@@ -45,15 +43,15 @@ abstract class QueryBuilder
     {
         $col = "";
         $table = $this->table;
-        
+
         foreach ($attributes as $attribute) {
             $col .= $attribute . " ,";
         }
         $col = rtrim($col, ',');
-       
+
         if (count($conditions) == 0) {
             $sql = "SELECT $col FROM $table ORDER BY ID DESC";
-            return $this->execute($sql, $conditions,'objectAll', 'all');
+            return $this->execute($sql, $conditions, 'objectAll', 'all');
         }
 
         $params = "";
@@ -63,7 +61,7 @@ abstract class QueryBuilder
         $params = rtrim($params, " AND ");
 
         $sql = "SELECT $col FROM $table WHERE $params ORDER BY ID DESC";
-        return $this->execute($sql, $conditions,'objectAll', 'all');
+        return $this->execute($sql, $conditions, 'objectAll', 'all');
     }
 
     /**
@@ -81,10 +79,10 @@ abstract class QueryBuilder
         }
         $col = rtrim($col, ', ');
         $table = $this->table;
-        
+
         if (count($conditions) == 0) {
             $sql = "SELECT $col FROM $table";
-            return $this->execute($sql, $conditions,'objectOne', 'one');
+            return $this->execute($sql, $conditions, 'objectOne', 'one');
         }
 
         $params = "";
@@ -94,8 +92,8 @@ abstract class QueryBuilder
         $params = rtrim($params, " AND ");
 
         $sql = "SELECT $col FROM $table WHERE $params";
-        
-        return $this->execute($sql, $conditions,'objectOne', 'one');
+
+        return $this->execute($sql, $conditions, 'objectOne', 'one');
     }
 
     /**
@@ -127,11 +125,12 @@ abstract class QueryBuilder
                 return false;
             }
         } catch (PDOException $e) {
+            $this->logger($e->getMessage(), 'error');
             return false;
         }
     }
 
-        /**
+    /**
      * delete one data in database
      *
      * @param int $id
@@ -141,11 +140,17 @@ abstract class QueryBuilder
     {
         $pdo = Database::getConnection();
         $table = $this->table;
-        $query = "DELETE FROM $table WHERE id = :id";
-        $stmt = $pdo->prepare($query);
 
-        if ($stmt->execute(['id' => $id])) {
-            return true;
+        try {
+            $query = "DELETE FROM $table WHERE id = :id";
+            $stmt = $pdo->prepare($query);
+
+            if ($stmt->execute(['id' => $id])) {
+                return true;
+            }
+        } catch (PDOException $e) {
+            $this->logger($e->getMessage(), 'error');
+            return false;
         }
 
         return false;
@@ -158,10 +163,11 @@ abstract class QueryBuilder
      * @param int $id
      * @return bolean
      */
-    public function update(array $datas,int $id){
+    public function update(array $datas, int $id)
+    {
         $pdo = Database::getConnection();
         $set = "";
-        foreach($datas as $key => $value){
+        foreach ($datas as $key => $value) {
             $set .= "$key=:$key, ";
         }
 
@@ -179,9 +185,9 @@ abstract class QueryBuilder
                 return false;
             }
         } catch (PDOException $e) {
+            $this->logger($e->getMessage(), 'error');
             return false;
         }
-
     }
 
     /**
@@ -217,7 +223,7 @@ abstract class QueryBuilder
             $pdo = Database::getConnection();
             $stmt = $pdo->prepare($sql);
             $stmt->execute($conditions);
-           
+
             if ($response == self::OBJECT_ALL) {
                 $obj = [];
                 while ($row = $stmt->fetchObject()) {
@@ -229,6 +235,7 @@ abstract class QueryBuilder
                 return $this->newObj($stmt->fetchObject(), $query);
             }
         } catch (PDOException $e) {
+            $this->logger($e->getMessage(), 'error');
             return false;
         }
     }

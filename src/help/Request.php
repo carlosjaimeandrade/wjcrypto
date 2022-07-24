@@ -6,6 +6,7 @@ use Firebase\JWT\Key;
 use App\Models\Repository\UsersRepository;
 use App\Models\Repository\AccountsRepository;
 use Src\help\Json;
+use Src\help\Monolog;
 
 class Request
 {
@@ -25,12 +26,16 @@ class Request
     private $json;
 
     /**
-     * @param Users $users
+     * @param UsersRepository $users
+     * @param AccountsRepository $accounts
+     * @param Json $json
+     * @param Monolog $monolog
      */
-    public function __construct(UsersRepository $users, AccountsRepository $accounts, Json $json){
+    public function __construct(UsersRepository $users, AccountsRepository $accounts, Json $json, Monolog $monolog){
         $this->users = $users;
         $this->accounts = $accounts;
         $this->json = $json;
+        $this->monolog = $monolog;
     }
 
     /**
@@ -86,7 +91,7 @@ class Request
                 if($data == false){
                     return true;
                 }
-                
+            
                 return $dataUser;
             } catch (\Exception $e) { // Also tried JwtException
                 return false;

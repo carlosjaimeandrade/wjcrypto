@@ -6,6 +6,7 @@ use App\Models\Repository\AccountsRepository;
 use App\Models\Repository\HistoryRepository;
 use Src\help\Request;
 use Src\help\Json;
+use Src\help\Monolog;
 
 class Post
 {
@@ -20,18 +21,35 @@ class Post
     private $accountsRepository;
 
     /**
+     * @var Json
+     */
+    private $json;
+
+    /**
+     * @var HistoryRepository
+     */
+    private $historyRepository;
+
+    /**
+     * @var Monolog
+     */
+    private $monolog;
+
+    /**
      * @param AccountsRepository $accountsRepository
      */
     public function __construct(
         AccountsRepository $accountsRepository,
         Request $request,
         Json $json,
-        HistoryRepository $historyRepository
+        HistoryRepository $historyRepository,
+        Monolog $monolog
     ) {
         $this->accountsRepository = $accountsRepository;
         $this->request = $request;
         $this->json = $json;
         $this->historyRepository = $historyRepository;
+        $this->monolog = $monolog;
     }
     /**
      * deposit new value in account
@@ -79,8 +97,9 @@ class Post
         $removal = number_format($data['value'], 2, ",", ".");
         $description = base64_encode("Retira de $removal");
         $category = base64_encode('removal');
-        $this->historyRepository->create(["description" => $description, "category" => $category , 'users_id' => $id]);
-
+        $this->historyRepository->create(["description" => $description, "category" => $category, 'users_id' => $id]);
+        $removal = base64_encode($removal);
+        $this->monolog->logger("Removal of $removal user {$user['name']}");
         $this->json->response(['message' => "success"], 200);
     }
 

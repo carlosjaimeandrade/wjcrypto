@@ -21,8 +21,14 @@ class Get
     private $json;
 
     /**
+     * @var HistoryRepository
+     */
+    private $historyRepository;
+
+    /**
      * @param Json $json
-     * @param Users $users
+     * @param Request $request
+     * @param HistoryRepository $historyRepository
      */
     public function __construct(Json $json, Request $request, HistoryRepository $historyRepository)
     {
@@ -40,7 +46,7 @@ class Get
     {
         $category = $this->request->getParam('category');
 
-        if(empty($category)){
+        if (empty($category)) {
             $this->json->response(['message' => "bad request"], 400);
             exit();
         }
@@ -48,17 +54,17 @@ class Get
         $user = $this->request->authorization(true);
         $userId = $user['id'];
         $category = base64_encode($category);
-        $historys = $this->historyRepository->all(['*'],['category' => $category, 'users_id' => $userId]);
-        if(!$historys){
+        $historys = $this->historyRepository->all(['*'], ['category' => $category, 'users_id' => $userId]);
+        if (!$historys) {
             $this->json->response(['message' => "bad request"], 400);
         }
 
         $log = [];
-        foreach($historys->datas as $key => $history){
+        foreach ($historys->datas as $key => $history) {
             $date = date_create($history->createdAt);
             $log[] = ['description' => base64_decode($history->description), 'createdAt' => date_format($date, 'd-m-Y H:i:s')];
         }
-       
+
         $this->json->response($log, 200);
     }
 }

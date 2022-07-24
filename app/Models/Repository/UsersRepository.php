@@ -3,6 +3,7 @@
 namespace App\Models\Repository;
 
 use App\Models\Users;
+use Src\help\Monolog;
 
 class UsersRepository
 {
@@ -20,7 +21,7 @@ class UsersRepository
     /**
      * @param Users $users
      */
-    public function __construct(Users $users)
+    public function __construct(Users $users, Monolog $monolog)
     {
         $this->users = $users;
     }
