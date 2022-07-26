@@ -18,5 +18,6 @@ $middleware->pages = [
     '\App\Controllers\History\Index' => ['get']
 ];
 
+
 $middleware->check();
 

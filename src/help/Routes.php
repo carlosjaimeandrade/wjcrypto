@@ -69,6 +69,7 @@ class Routes
             $containerBuilder->useAutowiring(true);
             $container = $containerBuilder->build();
             $active = $container->get($class);
+            
         } else {
             http_response_code(404);
             echo json_encode(['error' => "Endpoint invalid"]);
